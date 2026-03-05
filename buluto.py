@@ -9,21 +9,28 @@ st.set_page_config(page_title="Buluto Pro", page_icon="☁️", layout="wide")
 # 2. iPHONE TAM EKRAN VE TASARIM (CSS) AYARLARI
 st.markdown("""
     <style>
-    /* Arka Plan: Beyaza yakın açık mavi (AliceBlue) */
+    /* Arka Plan: Açık Çelik Mavisi (#B0C4DE) */
     .stApp {
-        background-color: #F0F8FF;
+        background-color: #B0C4DE;
     }
 
-    /* Sol Menü (Sidebar) Rengi */
+    /* Sol Menü (Sidebar): Bir tık daha koyu çelik tonu */
     [data-testid="stSidebar"] {
-        background-color: #E6F2FF;
+        background-color: #9db1cc;
     }
 
-    /* Butonları "Bulut" gibi yuvarlayalım ve renklendirelim */
+    /* Kartlar ve Yazı Alanları: Okunabilirlik için hafif şeffaf beyaz dokunuş */
+    .stMetric, .stTable {
+        background-color: rgba(255, 255, 255, 0.4);
+        padding: 15px;
+        border-radius: 15px;
+    }
+
+    /* Butonlar: Canlı Mavi */
     .stButton>button {
         border-radius: 20px;
         width: 100%;
-        background-color: #1E90FF;
+        background-color: #4682B4; /* SteelBlue */
         color: white;
         border: none;
         font-weight: bold;
@@ -31,13 +38,14 @@ st.markdown("""
     }
     
     .stButton>button:hover {
-        background-color: #00BFFF;
+        background-color: #5f9ea0;
         color: white;
     }
 
-    /* Giriş kutusunun kenarlarını yumuşat */
+    /* Giriş kutusu */
     .stTextInput>div>div>input {
         border-radius: 15px;
+        background-color: rgba(255, 255, 255, 0.9);
     }
     </style>
     
@@ -65,7 +73,7 @@ if sayfa == "Canlı Takip":
     plaka = st.text_input("Plaka Manuel Sorgu:", placeholder="Örn: 34ABC123")
     if st.button("Sistemi Tetikle"):
         with st.spinner('Veritabanı kontrol ediliyor...'):
-            time.sleep(1) # Gerçekçilik katar :)
+            time.sleep(1)
             if "34" in plaka:
                 st.success(f"✅ {plaka} İÇİN KAPI AÇILDI!")
                 st.balloons()
@@ -85,11 +93,9 @@ if sayfa == "Canlı Takip":
 
 elif sayfa == "İstatistikler":
     st.title("📊 Kullanım Verileri")
-    st.write("Burada ileride hangi saatte kaç araç girmiş grafikle göreceğiz.")
     chart_data = pd.DataFrame({"Araç Sayısı": [10, 20, 15, 30, 25, 40]})
     st.line_chart(chart_data)
 
-# Ayarlar kısmını da boş bırakmayalım :)
 elif sayfa == "Ayarlar":
     st.title("⚙️ Sistem Ayarları")
-    st.write("Kullanıcı yetkileri ve kapı zaman aşımı ayarları burada olacak.")
+    st.write("Kullanıcı yetkileri ve sistem parametreleri.")
