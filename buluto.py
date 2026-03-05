@@ -3,7 +3,47 @@ import pandas as pd
 import time
 import random
 
+# 1. SAYFA AYARLARI
 st.set_page_config(page_title="Buluto Pro", page_icon="☁️", layout="wide")
+
+# 2. iPHONE TAM EKRAN VE TASARIM (CSS) AYARLARI
+st.markdown("""
+    <style>
+    /* Arka Plan: Beyaza yakın açık mavi (AliceBlue) */
+    .stApp {
+        background-color: #F0F8FF;
+    }
+
+    /* Sol Menü (Sidebar) Rengi */
+    [data-testid="stSidebar"] {
+        background-color: #E6F2FF;
+    }
+
+    /* Butonları "Bulut" gibi yuvarlayalım ve renklendirelim */
+    .stButton>button {
+        border-radius: 20px;
+        width: 100%;
+        background-color: #1E90FF;
+        color: white;
+        border: none;
+        font-weight: bold;
+        transition: 0.3s;
+    }
+    
+    .stButton>button:hover {
+        background-color: #00BFFF;
+        color: white;
+    }
+
+    /* Giriş kutusunun kenarlarını yumuşat */
+    .stTextInput>div>div>input {
+        border-radius: 15px;
+    }
+    </style>
+    
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    """, unsafe_allow_html=True)
 
 # --- SOL MENÜ (SIDEBAR) ---
 st.sidebar.title("☁️ Buluto Kontrol")
@@ -46,6 +86,10 @@ if sayfa == "Canlı Takip":
 elif sayfa == "İstatistikler":
     st.title("📊 Kullanım Verileri")
     st.write("Burada ileride hangi saatte kaç araç girmiş grafikle göreceğiz.")
-    # Örnek grafik
     chart_data = pd.DataFrame({"Araç Sayısı": [10, 20, 15, 30, 25, 40]})
     st.line_chart(chart_data)
+
+# Ayarlar kısmını da boş bırakmayalım :)
+elif sayfa == "Ayarlar":
+    st.title("⚙️ Sistem Ayarları")
+    st.write("Kullanıcı yetkileri ve kapı zaman aşımı ayarları burada olacak.")
