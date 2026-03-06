@@ -2,167 +2,243 @@ import streamlit as st
 import os
 from datetime import datetime
 
-# 1. Sayfa Ayarları
-st.set_page_config(page_title="Buluto Security Pro", layout="wide")
+# 1. Sayfa Ayarları - Tarayıcı sekmesi ve geniş düzen
+st.set_page_config(
+    page_title="Buluto Security Pro",
+    page_icon="🛡️",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
 
-# 2. CSS - Sadece Plaka Hizalaması Düzeltildi, Diğer Her Şey Aynı
+# 2. CSS MASTER BLOCK - Görsel hataları ve beyaz barı yok eden kısım
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@700&family=Lexend:wght@800&display=swap');
 
-    html, body, [class*="css"] { font-family: 'Lexend', sans-serif !important; }
+    /* Genel Yazı Tipi */
+    html, body, [class*="css"] { 
+        font-family: 'Lexend', sans-serif !important; 
+    }
 
+    /* Arka Plan Degradesi */
     .stApp { 
         background: linear-gradient(180deg, #00c6ff 0%, #0072ff 100%); 
     }
+
+    /* BEYAZ BARI VE STANDART BOŞLUKLARI ÖLDÜREN KISIM */
+    .block-container { padding-top: 0rem !important; padding-bottom: 0rem !important; }
+    header, footer, #MainMenu { visibility: hidden !important; }
+    [data-testid="stHeader"] { background: rgba(0,0,0,0); }
     
+    /* GLASSMORPHISM KART YAPISI (Dolgun Arka Plan) */
     .glass-card {
         background: rgba(255, 255, 255, 0.95);
         border-radius: 25px;
-        padding: 20px;
+        padding: 30px;
         margin-bottom: 25px;
         box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2), inset 0 -5px 0 rgba(0, 0, 0, 0.1);
         text-align: center;
         border: 1px solid rgba(255, 255, 255, 0.3);
     }
 
+    /* VİDEO VİZÖRÜ */
     .video-container {
         width: 100%;
-        height: 380px;
-        background-color: #1e293b;
+        height: 400px;
+        background-color: #0f172a;
         border-radius: 20px;
         display: flex;
         justify-content: center;
         align-items: center;
         color: #38bdf8;
+        font-size: 20px;
         font-weight: bold;
-        box-shadow: inset 0 0 50px rgba(0,0,0,0.5);
+        box-shadow: inset 0 0 60px rgba(0,0,0,0.8);
         border: 4px solid #f8fafc;
+        margin-top: 10px;
     }
 
-    /* PLAKA KARTI - ORTALAMA DÜZELTİLDİ */
+    /* PLAKA ARKA PLANI - KOYU VE DOLU */
     .plaka-bg {
         background: #0f172a; 
         border-radius: 20px;
         padding: 25px;
-        margin: 15px auto;
+        margin: 20px auto;
         box-shadow: 0 10px 0 #000;
         display: flex;
         justify-content: center;
         align-items: center;
+        min-width: 300px;
     }
 
-    /* PLAKA METNİ - NEON VE SİMETRİK */
+    /* PLAKA YAZISI - HAFİF NEON VE TAM ORTALI */
     .plaka-num {
         font-family: 'Fira Code', monospace !important;
-        font-size: 58px !important;
+        font-size: 64px !important;
         font-weight: 700;
         color: #ffffff !important;
-        letter-spacing: 8px; 
-        padding-left: 8px; /* Sağdaki harf boşluğunu dengelemek için kritik! */
-        text-shadow: 0 0 1px #fff, 0 0 3px #38bdf8, 0 0 30px #38bdf8, 0 0 40px #38bdf8;
+        letter-spacing: 10px; 
+        padding-left: 10px; /* Simetri dengeleyici */
+        text-shadow: 0 0 5px #fff, 0 0 15px #38bdf8;
         text-align: center;
+        line-height: 1.2;
     }
 
+    /* ETİKETLER */
     .label-tag {
         background: #38bdf8;
         color: #0f172a;
-        padding: 5px 15px;
-        border-radius: 10px;
-        font-size: 12px;
+        padding: 6px 18px;
+        border-radius: 12px;
+        font-size: 13px;
         display: inline-block;
-        margin-bottom: 10px;
-        font-weight: bold;
+        margin-bottom: 12px;
+        font-weight: 800;
+        text-transform: uppercase;
     }
 
-    # --- GİRİŞ EKRANI (LOGOLU) ---
-if not st.session_state['logged_in']:
-    _, login_col, _ = st.columns([1, 1.2, 1])
-    with login_col:
-        # Üstteki gereksiz boşlukları ve barı önlemek için sadece küçük bir mesafe:
-        st.write("") 
-        
-        # Kartın başlangıcı
-        st.markdown("<div class='glass-card'>", unsafe_allow_html=True)
-        
-        # Logoyu direkt en üste alıyoruz
-        if os.path.exists("logo.png"): 
-            st.image("logo.png", use_container_width=True)
-        
-        u = st.text_input("Yönetici")
-        p = st.text_input("Şifre", type="password")
-        
-        if st.button("GİRİŞ YAP", use_container_width=True):
-            if u == "admin" and p == "buluto2024":
-                st.session_state['logged_in'] = True
-                st.rerun()
-        st.markdown("</div>", unsafe_allow_html=True)
+    /* 3D BUTON TASARIMLARI */
+    div.stButton > button {
+        border-radius: 22px !important;
+        font-weight: 800 !important;
+        height: 75px !important;
+        border: none !important;
+        color: white !important;
+        font-size: 20px !important;
+        transition: all 0.1s ease !important;
+    }
 
+    /* Onayla Butonu */
+    div[data-testid="stHorizontalBlock"] > div:nth-child(1) button {
+        background: #00d2ff !important;
+        border-bottom: 8px solid #0099cc !important;
+        box-shadow: 0 8px 15px rgba(0, 210, 255, 0.3) !important;
+    }
+
+    /* Reddet Butonu */
     div[data-testid="stHorizontalBlock"] > div:nth-child(2) button {
         background: #ff4b5c !important;
         border-bottom: 8px solid #cc3344 !important;
+        box-shadow: 0 8px 15px rgba(255, 75, 92, 0.3) !important;
     }
 
-    div.stButton > button:active { transform: translateY(6px) !important; }
+    div.stButton > button:active { 
+        transform: translateY(6px) !important; 
+        border-bottom: 2px solid transparent !important;
+    }
 
-    header, footer, #MainMenu {visibility: hidden;}
+    /* Giriş Ekranı Input Düzenlemesi */
+    .stTextInput input {
+        background-color: #f1f5f9 !important;
+        border-radius: 15px !important;
+        height: 50px !important;
+        font-weight: 600 !important;
+    }
     </style>
     """, unsafe_allow_html=True)
 
-# Oturum Durumu
-if 'logged_in' not in st.session_state: st.session_state['logged_in'] = False
-if 'active_request' not in st.session_state: st.session_state['active_request'] = {"Plaka": "34 BAA 001", "Saat": "05:40:12"}
+# 3. OTURUM YÖNETİMİ
+if 'logged_in' not in st.session_state:
+    st.session_state['logged_in'] = False
 
-# --- GİRİŞ EKRANI (LOGOLU) ---
+if 'active_request' not in st.session_state:
+    st.session_state['active_request'] = {
+        "Plaka": "34 BAA 001", 
+        "Saat": datetime.now().strftime("%H:%M:%S")
+    }
+
+# --- A. GİRİŞ EKRANI SİMÜLASYONU ---
 if not st.session_state['logged_in']:
+    st.write("") # Üst boşluk dengeleyici
     _, login_col, _ = st.columns([1, 1.2, 1])
+    
     with login_col:
-        st.markdown("<br><br><br>", unsafe_allow_html=True)
+        st.markdown("<div style='margin-top: 80px;'></div>", unsafe_allow_html=True)
         st.markdown("<div class='glass-card'>", unsafe_allow_html=True)
-        if os.path.exists("logo.png"): st.image("logo.png", use_container_width=True)
-        u = st.text_input("Yönetici")
-        p = st.text_input("Şifre", type="password")
-        if st.button("GİRİŞ YAP", use_container_width=True):
-            if u == "admin" and p == "buluto2024":
+        
+        # Logo Kontrolü
+        if os.path.exists("logo.png"):
+            st.image("logo.png", use_container_width=True)
+        else:
+            st.markdown("<h2 style='color:#0072ff'>BULUTO SECURITY</h2>", unsafe_allow_html=True)
+        
+        st.write("### Yönetici Paneli")
+        user = st.text_input("Kullanıcı Adı", placeholder="admin")
+        pw = st.text_input("Şifre", type="password", placeholder="••••••••")
+        
+        if st.button("SİSTEME GİRİŞ YAP", use_container_width=True):
+            if user == "admin" and pw == "buluto2024":
                 st.session_state['logged_in'] = True
                 st.rerun()
+            else:
+                st.error("Hatalı Giriş Bilgileri!")
+        
         st.markdown("</div>", unsafe_allow_html=True)
 
-# --- ANA DASHBOARD ---
+# --- B. ANA DASHBOARD EKRANI ---
 else:
-    st.markdown("<h1 style='text-align:center; color:white; font-weight:900;'>BULUTO SECURITY PRO</h1>", unsafe_allow_html=True)
-    
-    _, main_col, _ = st.columns([1, 3.2, 1])
+    # Başlık Alanı
+    st.markdown("<h1 style='text-align:center; color:white; font-weight:900; margin-top:30px; letter-spacing:3px;'>BULUTO SECURITY PRO</h1>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align:center; color:rgba(255,255,255,0.8); font-weight:bold;'>YAPAY ZEKA DESTEKLİ PLAKA TANIMA SİSTEMİ</p>", unsafe_allow_html=True)
+
+    # Ana İçerik Kolonları
+    _, main_col, _ = st.columns([1, 4, 1])
     
     with main_col:
+        # 1. Kamera Akışı Kartı
         st.markdown("<div class='glass-card'>", unsafe_allow_html=True)
-        st.markdown("<div class='label-tag'>CANLI KAMERA AKIŞI</div>", unsafe_allow_html=True)
-        st.markdown("<div class='video-container'>SİSTEM ANALİZ EDİLİYOR...</div>", unsafe_allow_html=True)
+        st.markdown("<div class='label-tag'>🔴 CANLI KAMERA AKIŞI</div>", unsafe_allow_html=True)
+        st.markdown("<div class='video-container'>SİSTEM AKTİF: ARAÇ BEKLENİYOR...</div>", unsafe_allow_html=True)
         st.markdown("</div>", unsafe_allow_html=True)
 
+        # 2. Tespit Edilen Araç Kartı
         if st.session_state['active_request']:
             req = st.session_state['active_request']
             st.markdown("<div class='glass-card'>", unsafe_allow_html=True)
-            st.markdown("<div class='label-tag'>TESPİT EDİLEN ARAÇ</div>", unsafe_allow_html=True)
-            st.markdown(f"<div class='plaka-bg'><div class='plaka-num'>{req['Plaka']}</div></div>", unsafe_allow_html=True)
-            st.markdown(f"<p style='color:#64748b; font-weight:bold;'>Talep Saati: {req['Saat']}</p>", unsafe_allow_html=True)
+            st.markdown("<div class='label-tag'>🔍 SON TESPİT EDİLEN ARAÇ</div>", unsafe_allow_html=True)
+            
+            # Neon Plaka ve Dolu Arka Plan
+            st.markdown(f"""
+                <div class='plaka-bg'>
+                    <div class='plaka-num'>{req['Plaka']}</div>
+                </div>
+            """, unsafe_allow_html=True)
+            
+            st.markdown(f"<p style='color:#64748b; font-size:16px; font-weight:bold;'>Tespit Zamanı: {req['Saat']}</p>", unsafe_allow_html=True)
             st.markdown("</div>", unsafe_allow_html=True)
 
-            b1, b2 = st.columns(2)
-            with b1:
-                if st.button("✅ ONAYLA VE AÇ", use_container_width=True):
+            # 3. Aksiyon Butonları (Yan Yana)
+            btn_col1, btn_col2 = st.columns(2)
+            
+            with btn_col1:
+                if st.button("✅ BEYAZ LİSTE: ONAYLA", use_container_width=True):
+                    st.success(f"{req['Plaka']} girişine izin verildi.")
                     st.session_state['active_request'] = None
-                    st.rerun()
-            with b2:
-                if st.button("❌ GİRİŞİ ENGELLE", use_container_width=True):
+                    # Buraya kapı açma sinyali (API) eklenebilir
+            
+            with btn_col2:
+                if st.button("❌ KARA LİSTE: REDDET", use_container_width=True):
+                    st.warning(f"{req['Plaka']} girişi engellendi!")
                     st.session_state['active_request'] = None
-                    st.rerun()
 
-    # Sidebar Simülasyonu (Logo Dahil)
+    # Sidebar - Simülasyon ve Bilgi Paneli
     with st.sidebar:
-        if os.path.exists("logo.png"): st.image("logo.png")
+        if os.path.exists("logo.png"):
+            st.image("logo.png")
+        st.markdown("### 🛠️ SİSTEM ARAÇLARI")
+        st.info("Kameradan plaka geldiğinde sistem otomatik olarak orta panele yansıtacaktır.")
+        
         st.markdown("---")
-        t_p = st.text_input("Plaka Simüle Et")
-        if st.button("Kameraya Gönder"):
-            st.session_state['active_request'] = {"Plaka": t_p.upper(), "Saat": datetime.now().strftime("%H:%M:%S")}
+        test_input = st.text_input("Plaka Simülasyonu", placeholder="Örn: 06 ANK 06")
+        if st.button("Sistemi Tetikle"):
+            if test_input:
+                st.session_state['active_request'] = {
+                    "Plaka": test_input.upper(),
+                    "Saat": datetime.now().strftime("%H:%M:%S")
+                }
+                st.rerun()
+        
+        st.markdown("---")
+        if st.button("Güvenli Çıkış"):
+            st.session_state['logged_in'] = False
             st.rerun()
