@@ -60,7 +60,7 @@ st.markdown("""
         color: #ffffff !important;
         letter-spacing: 8px; 
         padding-left: 8px; /* Sağdaki harf boşluğunu dengelemek için kritik! */
-        text-shadow: 0 0 5px #fff, 0 0 10px #38bdf8, 0 0 30px #38bdf8, 0 0 40px #38bdf8;
+        text-shadow: 0 0 2px #fff, 0 0 5px #38bdf8, 0 0 30px #38bdf8, 0 0 40px #38bdf8;
         text-align: center;
     }
 
