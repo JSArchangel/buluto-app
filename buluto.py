@@ -75,20 +75,28 @@ st.markdown("""
         font-weight: bold;
     }
 
-    div.stButton > button {
-        border-radius: 20px !important;
-        font-weight: 800 !important;
-        height: 70px !important;
-        border: none !important;
-        color: white !important;
-        font-size: 18px !important;
-        transition: transform 0.1s !important;
-    }
-
-    div[data-testid="stHorizontalBlock"] > div:nth-child(1) button {
-        background: #00d2ff !important;
-        border-bottom: 8px solid #0099cc !important;
-    }
+    # --- GİRİŞ EKRANI (LOGOLU) ---
+if not st.session_state['logged_in']:
+    _, login_col, _ = st.columns([1, 1.2, 1])
+    with login_col:
+        # Üstteki gereksiz boşlukları ve barı önlemek için sadece küçük bir mesafe:
+        st.write("") 
+        
+        # Kartın başlangıcı
+        st.markdown("<div class='glass-card'>", unsafe_allow_html=True)
+        
+        # Logoyu direkt en üste alıyoruz
+        if os.path.exists("logo.png"): 
+            st.image("logo.png", use_container_width=True)
+        
+        u = st.text_input("Yönetici")
+        p = st.text_input("Şifre", type="password")
+        
+        if st.button("GİRİŞ YAP", use_container_width=True):
+            if u == "admin" and p == "buluto2024":
+                st.session_state['logged_in'] = True
+                st.rerun()
+        st.markdown("</div>", unsafe_allow_html=True)
 
     div[data-testid="stHorizontalBlock"] > div:nth-child(2) button {
         background: #ff4b5c !important;
