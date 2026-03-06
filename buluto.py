@@ -23,10 +23,26 @@ st.markdown("""
     }
 
     /* BEYAZ BARI VE GEREKSİZ TÜM ÜST BOŞLUKLARI ÖLDÜREN KISIM */
-    .block-container { padding-top: 0rem !important; padding-bottom: 0rem !important; }
-    header, footer, #MainMenu { visibility: hidden !important; }
-    [data-testid="stHeader"] { display: none !important; }
-    div.block-container > div:first-child { margin-top: -50px; } /* Hayalet boşluğu yukarı çeker */
+    /* 1. Adım: Header'ı tamamen kapat ve yer kaplamasını engelle */
+    header[data-testid="stHeader"] {
+        visibility: hidden;
+        height: 0%;
+        display: none;
+    }
+
+    /* 2. Adım: Ana içerik alanındaki üst boşluğu sıfırla */
+    .main .block-container {
+        padding-top: 0rem !important;
+        padding-bottom: 0rem !important;
+        margin-top: 0rem !important;
+    }
+
+    /* 3. Adım: Streamlit'in otomatik eklediği 'deploy' barını gizle */
+    #MainMenu { visibility: hidden; }
+    footer { visibility: hidden; }
+
+    /* Giriş ekranındaki kartı biraz daha yukarı taşımak istersen burayı kullanabilirsin */
+    .login-spacer { margin-top: 50px; }
 
     /* Glassmorphism Kartları */
     .glass-card {
@@ -37,41 +53,6 @@ st.markdown("""
         box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
         text-align: center;
         border: 1px solid rgba(255, 255, 255, 0.3);
-    }
-
-    /* Video Vizörü */
-    .video-container {
-        width: 100%;
-        height: 400px;
-        background-color: #0f172a;
-        border-radius: 20px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        color: #38bdf8;
-        font-weight: bold;
-        border: 4px solid #f8fafc;
-        box-shadow: inset 0 0 50px rgba(0,0,0,0.8);
-    }
-
-    /* Plaka Tasarımı (Hafif Neon) */
-    .plaka-bg {
-        background: #0f172a; 
-        border-radius: 20px;
-        padding: 25px;
-        margin: 20px auto;
-        box-shadow: 0 10px 0 #000;
-        display: flex;
-        justify-content: center;
-    }
-    .plaka-num {
-        font-family: 'Fira Code', monospace !important;
-        font-size: 64px !important;
-        font-weight: 700;
-        color: #ffffff !important;
-        letter-spacing: 10px;
-        padding-left: 10px;
-        text-shadow: 0 0 5px #fff, 0 0 15px #38bdf8;
     }
 
     /* 3D Butonlar */
@@ -93,18 +74,6 @@ st.markdown("""
         border-bottom: 8px solid #cc3344 !important;
     }
     div.stButton > button:active { transform: translateY(6px) !important; border-bottom: 2px solid transparent !important; }
-
-    /* Label Etiketleri */
-    .label-tag {
-        background: #38bdf8;
-        color: #0f172a;
-        padding: 6px 18px;
-        border-radius: 12px;
-        font-size: 13px;
-        display: inline-block;
-        margin-bottom: 12px;
-        font-weight: 800;
-    }
     </style>
     """, unsafe_allow_html=True)
 
