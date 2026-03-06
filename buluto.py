@@ -14,39 +14,39 @@ st.markdown("""
 
 @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@700&family=Lexend:wght@800&display=swap');
 
+html, body, [class*="css"] {
+    font-family: 'Lexend', sans-serif !important;
+}
+
 [data-testid="stHeader"] {display:none;}
 footer {visibility:hidden;}
 #MainMenu {visibility:hidden;}
 
-html, body, [class*="css"]{
-font-family:'Lexend',sans-serif !important;
-}
-
 .main .block-container{
-padding-top:0rem;
-margin-top:-40px;
+    padding-top:0rem;
+    padding-bottom:0rem;
+    margin-top:-40px;
 }
-
-/* BACKGROUND */
 
 .stApp{
 background: linear-gradient(180deg,#00c6ff 0%,#0072ff 100%);
+overflow:hidden;
 }
 
-/* SUN */
+/* SUN EFFECT */
 
 .sun{
 position:fixed;
-top:-100px;
-right:-100px;
-width:300px;
-height:300px;
-background:radial-gradient(circle,rgba(255,255,255,0.8),rgba(255,255,255,0));
-filter:blur(50px);
+top:-120px;
+right:-120px;
+width:350px;
+height:350px;
+background: radial-gradient(circle,rgba(255,255,255,0.8),rgba(255,255,255,0));
+filter:blur(40px);
 z-index:0;
 }
 
-/* CLOUD */
+/* CLOUDS */
 
 .cloud{
 position:fixed;
@@ -54,9 +54,11 @@ left:-300px;
 width:250px;
 height:80px;
 background:white;
-opacity:0.5;
+opacity:0.6;
 border-radius:100px;
+filter:blur(1px);
 animation:cloudMove linear infinite;
+z-index:0;
 }
 
 .cloud:before,.cloud:after{
@@ -80,16 +82,16 @@ top:-40px;
 left:120px;
 }
 
-.cloud1{top:20%;animation-duration:140s;}
-.cloud2{top:45%;animation-duration:200s;}
-.cloud3{top:70%;animation-duration:240s;}
+.cloud1{top:15%;animation-duration:120s;}
+.cloud2{top:40%;animation-duration:160s;}
+.cloud3{top:65%;animation-duration:200s;}
 
 @keyframes cloudMove{
 0%{transform:translateX(-300px);}
 100%{transform:translateX(120vw);}
 }
 
-/* CARD */
+/* GLASS CARD */
 
 .glass-card{
 background:rgba(255,255,255,0.92);
@@ -100,24 +102,25 @@ box-shadow:0 20px 40px rgba(0,0,0,0.25);
 text-align:center;
 }
 
-/* CAMERA */
+/* VIDEO */
 
 .video-container{
 width:100%;
 height:420px;
 background:#0f172a;
 border-radius:20px;
-position:relative;
-overflow:hidden;
 display:flex;
-align-items:center;
 justify-content:center;
+align-items:center;
 color:#38bdf8;
 font-weight:bold;
-border:4px solid white;
+border:4px solid #f8fafc;
+box-shadow:inset 0 0 50px rgba(0,0,0,0.8);
+position:relative;
+overflow:hidden;
 }
 
-/* SCAN LINE */
+/* SCANNER */
 
 .video-container:after{
 content:"";
@@ -125,6 +128,7 @@ position:absolute;
 width:100%;
 height:3px;
 background:#38bdf8;
+top:0;
 animation:scan 3s linear infinite;
 }
 
@@ -133,21 +137,17 @@ animation:scan 3s linear infinite;
 100%{top:100%;}
 }
 
-/* AI BOX */
+/* LABEL */
 
-.ai-box{
-position:absolute;
-width:200px;
-height:80px;
-border:3px solid #38bdf8;
-box-shadow:0 0 20px #38bdf8;
-animation:pulse 2s infinite;
-}
-
-@keyframes pulse{
-0%{opacity:0.6}
-50%{opacity:1}
-100%{opacity:0.6}
+.label-tag{
+background:#38bdf8;
+color:#0f172a;
+padding:6px 18px;
+border-radius:12px;
+font-size:13px;
+display:inline-block;
+margin-bottom:12px;
+font-weight:800;
 }
 
 /* PLATE */
@@ -163,63 +163,40 @@ justify-content:center;
 }
 
 .plaka-num{
-font-family:'Fira Code',monospace;
-font-size:64px;
+font-family:'Fira Code',monospace !important;
+font-size:64px !important;
+font-weight:700;
+color:#ffffff !important;
 letter-spacing:10px;
-color:white;
 text-shadow:
-0 0 5px white,
-0 0 15px #38bdf8,
-0 0 30px #38bdf8;
+0 0 5px #fff,
+0 0 10px #38bdf8,
+0 0 20px #38bdf8,
+0 0 40px #38bdf8;
 }
 
 /* BUTTON */
 
 div.stButton>button{
-border-radius:20px !important;
-height:70px;
-font-weight:800;
-background:#ff5555;
-border-bottom:8px solid #cc4444;
-color:white;
+border-radius:22px !important;
+font-weight:800 !important;
+height:70px !important;
+border:none !important;
+color:white !important;
+font-size:18px !important;
+background:#ff5555 !important;
+border-bottom:8px solid #cc4444 !important;
 transition:0.15s;
 }
 
 div.stButton>button:hover{
 transform:scale(1.05);
+box-shadow:0 10px 25px rgba(0,0,0,0.4);
 }
 
-/* BARRIER */
-
-.barrier{
-width:100%;
-height:20px;
-background:#222;
-border-radius:10px;
-position:relative;
-margin-top:20px;
-}
-
-.barrier-arm{
-width:60%;
-height:8px;
-background:red;
-position:absolute;
-top:6px;
-left:20%;
-transform-origin:left center;
-transition:transform 1s;
-}
-
-.barrier-open{
-transform:rotate(-60deg);
-}
-
-.status{
-color:white;
-text-align:center;
-margin-bottom:10px;
-font-size:14px;
+div.stButton>button:active{
+transform:translateY(6px);
+border-bottom:2px solid transparent;
 }
 
 </style>
@@ -238,8 +215,6 @@ if 'active_request' not in st.session_state:
     st.session_state.active_request={"Plaka":"34 BAA 001","Saat":"05:40:12"}
 if 'history' not in st.session_state:
     st.session_state.history=[]
-if 'barrier' not in st.session_state:
-    st.session_state.barrier=False
 
 if not st.session_state.logged_in:
 
@@ -261,19 +236,26 @@ if not st.session_state.logged_in:
                 st.session_state.logged_in=True
                 st.rerun()
             else:
-                st.error("Hatalı giriş")
+                st.error("Hatalı Kimlik Bilgileri")
 
 else:
 
     st.markdown("""
-<h1 style='text-align:center;color:white;font-weight:900;'>
+<h1 style='
+text-align:center;
+color:white;
+font-weight:900;
+margin-top:20px;
+letter-spacing:2px;
+text-shadow:0 0 10px rgba(255,255,255,0.6),0 0 30px rgba(56,189,248,0.8);
+'>
 BULUTO SECURITY PRO
 </h1>
 """,unsafe_allow_html=True)
 
     st.markdown("""
-<div class="status">
-🟢 Kamera Online | 🟢 AI Detection Aktif | 🟢 Sistem Stabil
+<div style='text-align:center;color:white;font-size:14px;margin-bottom:20px;'>
+🟢 Kamera Bağlı | 🟢 AI Analiz Aktif | 🟢 Sistem Stabil
 </div>
 """,unsafe_allow_html=True)
 
@@ -310,13 +292,9 @@ BULUTO SECURITY PRO
 
         st.markdown("<div class='glass-card'>",unsafe_allow_html=True)
 
-        st.markdown("<div class='video-container'>",unsafe_allow_html=True)
+        st.markdown("<div class='label-tag'>CANLI KAMERA</div>",unsafe_allow_html=True)
 
-        st.markdown("<div class='ai-box'></div>",unsafe_allow_html=True)
-
-        st.markdown("GÖRÜNTÜ ANALİZ EDİLİYOR...")
-
-        st.markdown("</div>",unsafe_allow_html=True)
+        st.markdown("<div class='video-container'>GÖRÜNTÜ ANALİZ EDİLİYOR...</div>",unsafe_allow_html=True)
 
         st.markdown("</div>",unsafe_allow_html=True)
 
@@ -326,7 +304,9 @@ BULUTO SECURITY PRO
 
             st.markdown("<div class='glass-card'>",unsafe_allow_html=True)
 
-            st.markdown("<div class='plaka-bg'><div class='plaka-num'>{}</div></div>".format(req["Plaka"]),unsafe_allow_html=True)
+            st.markdown("<div class='label-tag'>TESPİT EDİLEN ARAÇ</div>",unsafe_allow_html=True)
+
+            st.markdown(f"<div class='plaka-bg'><div class='plaka-num'>{req['Plaka']}</div></div>",unsafe_allow_html=True)
 
             st.write("Talep Zamanı:",req["Saat"])
 
@@ -335,26 +315,17 @@ BULUTO SECURITY PRO
             b1,b2=st.columns(2)
 
             with b1:
-
                 if st.button("✅ GİRİŞE İZİN VER",use_container_width=True):
 
                     st.session_state.history.append(req)
+
                     st.session_state.active_request=None
-                    st.session_state.barrier=True
+
                     st.rerun()
 
             with b2:
-
                 if st.button("❌ GİRİŞİ ENGELLE",use_container_width=True):
 
                     st.session_state.active_request=None
-                    st.session_state.barrier=False
+
                     st.rerun()
-
-        arm="barrier-arm barrier-open" if st.session_state.barrier else "barrier-arm"
-
-        st.markdown(f"""
-<div class="barrier">
-<div class="{arm}"></div>
-</div>
-""",unsafe_allow_html=True)
