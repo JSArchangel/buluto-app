@@ -340,4 +340,4 @@ st.markdown("""
 <a href="https://wa.me/905309965466" target="_blank" class="whatsapp-float">
 📞 Acil Yardım
 </a>
-""", unsafe_allow_html=True)
+""", unsafe_allow_html=True) 
