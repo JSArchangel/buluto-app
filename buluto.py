@@ -106,9 +106,9 @@ top:-40px;
 left:120px;
 }
 
-.cloud1{top:15%;animation-duration:40s;}
-.cloud2{top:40%;animation-duration:55s;}
-.cloud3{top:65%;animation-duration:70s;}
+.cloud1{top:15%;animation-duration:27s;}
+.cloud2{top:40%;animation-duration:37s;}
+.cloud3{top:65%;animation-duration:47s;}
 
 @keyframes cloudMove{
 0%{transform:translateX(-300px);}
