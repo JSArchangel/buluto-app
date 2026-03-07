@@ -46,7 +46,7 @@ filter:blur(40px);
 z-index:0;
 }
 
-/* CLOUDS */
+/* CLOUDS (HIZLANDIRILDI) */
 
 .cloud{
 position:fixed;
@@ -82,9 +82,11 @@ top:-40px;
 left:120px;
 }
 
-.cloud1{top:15%;animation-duration:120s;}
-.cloud2{top:40%;animation-duration:160s;}
-.cloud3{top:65%;animation-duration:200s;}
+/* BULUT HIZI */
+
+.cloud1{top:15%;animation-duration:40s;}
+.cloud2{top:40%;animation-duration:55s;}
+.cloud3{top:65%;animation-duration:70s;}
 
 @keyframes cloudMove{
 0%{transform:translateX(-300px);}
@@ -164,10 +166,10 @@ justify-content:center;
 
 .plaka-num{
 font-family:'Fira Code',monospace !important;
-font-size:64px !important;
+font-size:48px !important;
 font-weight:700;
 color:#ffffff !important;
-letter-spacing:10px;
+letter-spacing:8px;
 text-shadow:
 0 0 5px #fff,
 0 0 10px #38bdf8,
@@ -197,6 +199,28 @@ box-shadow:0 10px 25px rgba(0,0,0,0.4);
 div.stButton>button:active{
 transform:translateY(6px);
 border-bottom:2px solid transparent;
+}
+
+/* WHATSAPP ACIL BUTON */
+
+.whatsapp-float{
+position:fixed;
+bottom:25px;
+right:25px;
+background:#25D366;
+color:white;
+border-radius:50px;
+padding:16px 22px;
+font-size:16px;
+font-weight:800;
+box-shadow:0 10px 25px rgba(0,0,0,0.3);
+text-decoration:none;
+z-index:9999;
+}
+
+.whatsapp-float:hover{
+transform:scale(1.08);
+background:#1ebe5d;
 }
 
 </style>
@@ -318,19 +342,17 @@ BULUTO SECURITY PRO
                 if st.button("✅ GİRİŞE İZİN VER",use_container_width=True):
 
                     st.session_state.history.append(req)
-
                     st.session_state.active_request=None
-
                     st.rerun()
 
             with b2:
                 if st.button("❌ GİRİŞİ ENGELLE",use_container_width=True):
 
                     st.session_state.active_request=None
+                    st.rerun()
 
-                    st.rerun()  
-                    st.markdown("""
-<a href="https://wa.me/436608680430" target="_blank" class="whatsapp-float">
-<span class="whatsapp-icon">📞</span> Acil Yardım
+st.markdown("""
+<a href="https://wa.me/905309965466" target="_blank" class="whatsapp-float">
+📞 Acil Yardım
 </a>
 """, unsafe_allow_html=True)
