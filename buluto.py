@@ -33,7 +33,7 @@ def init_db():
 
 init_db()
 
-# 3. SENİN ASIL TASARIMIN (CSS - BEYAZ BAR GİZLEME DAHİL)
+# 3. TASARIM (DÜZELTİLMİŞ CSS)
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@700&family=Lexend:wght@800&display=swap');
@@ -42,20 +42,23 @@ html, body, [class*="css"] {
     font-family: 'Lexend', sans-serif !important;
 }
 
-/* BEYAZ BARI VE MENÜLERİ YOK EDEN KISIM */
-[data-testid="stHeader"] {display:none !important;}
-footer {visibility:hidden !important;}
-#MainMenu {visibility:hidden !important;}
+/* SIDEBAR BUTONUNU KORUYARAK ÜST BARI SADELEŞTİREN KISIM */
+[data-testid="stHeader"] {
+    background: rgba(0,0,0,0) !important; /* Arka planı şeffaf yapar */
+    color: white !important;
+}
+/* Menü ve diğer gereksiz butonları gizler ama sidebar açma butonu kalır */
+#MainMenu {visibility: hidden;}
+footer {visibility: hidden;}
 
 .main .block-container{
-    padding-top:0rem;
+    padding-top:2rem; /* Sidebar butonuyla çakışmaması için hafif boşluk */
     padding-bottom:0rem;
-    margin-top:-40px;
 }
 
 .stApp{
 background: linear-gradient(180deg,#00c6ff 0%,#0072ff 100%);
-overflow:hidden;
+/* overflow:hidden; -> Sidebar'ın kaymasını engellememesi için bunu kaldırdık veya auto yapabiliriz */
 }
 
 .sun{
@@ -225,7 +228,7 @@ z-index:9999;
 </style>
 """, unsafe_allow_html=True)
 
-# GÖRSEL ELEMENTLER (GÜNEŞ VE BULUTLAR)
+# GÖRSEL ELEMENTLER
 st.markdown("""
 <div class="sun"></div>
 <div class="cloud cloud1"></div>
@@ -255,9 +258,8 @@ if not st.session_state.logged_in:
             else:
                 st.error("Hatalı Kimlik Bilgileri")
 
-# 6. ANA SİSTEM (Giriş Yapılınca Çalışan Dev Kısım)
+# 6. ANA SİSTEM
 else:
-    # --- İŞTE O GERİ GELEN SIDEBAR ---
     with st.sidebar:
         if os.path.exists("logo.png"):
             st.image("logo.png")
@@ -274,7 +276,6 @@ else:
         st.divider()
         st.subheader("Son Geçişler (DB)")
         
-        # VERİTABANINDAN ÇEKME (SQLite)
         conn = get_db_connection()
         cur = conn.cursor()
         cur.execute("SELECT * FROM plaka_kayitlari ORDER BY id DESC LIMIT 5")
@@ -287,7 +288,6 @@ else:
             st.session_state.logged_in = False
             st.rerun()
 
-    # ANA EKRAN BAŞLIĞI
     st.markdown("""
     <h1 style='text-align:center;color:white;font-weight:900;margin-top:20px;letter-spacing:2px;text-shadow:0 0 10px rgba(255,255,255,0.6),0 0 30px rgba(56,189,248,0.8);'>
     BULUTO SECURITY PRO
@@ -296,13 +296,11 @@ else:
 
     _, main, _ = st.columns([1, 3.5, 1])
     with main:
-        # KAMERA GÖRÜNTÜSÜ
         st.markdown("<div class='glass-card'>", unsafe_allow_html=True)
         st.markdown("<div class='label-tag'>CANLI KAMERA</div>", unsafe_allow_html=True)
         st.markdown("<div class='video-container'>GÖRÜNTÜ ANALİZ EDİLİYOR...</div>", unsafe_allow_html=True)
         st.markdown("</div>", unsafe_allow_html=True)
 
-        # PLAKA KARTI
         if st.session_state.active_request:
             req = st.session_state.active_request
             st.markdown("<div class='glass-card'>", unsafe_allow_html=True)
@@ -314,7 +312,6 @@ else:
             b1, b2 = st.columns(2)
             with b1:
                 if st.button("✅ GİRİŞE İZİN VER", use_container_width=True):
-                    # SQLite Kayıt
                     conn = get_db_connection()
                     conn.execute("INSERT INTO plaka_kayitlari (plaka, zaman, durum) VALUES (?, ?, ?)",
                                (req['Plaka'], datetime.now().strftime("%H:%M:%S"), "ONAYLANDI"))
@@ -325,7 +322,6 @@ else:
 
             with b2:
                 if st.button("❌ GİRİŞİ ENGELLE", use_container_width=True):
-                    # SQLite Kayıt
                     conn = get_db_connection()
                     conn.execute("INSERT INTO plaka_kayitlari (plaka, zaman, durum) VALUES (?, ?, ?)",
                                (req['Plaka'], datetime.now().strftime("%H:%M:%S"), "REDDEDİLDİ"))
