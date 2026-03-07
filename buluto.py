@@ -328,4 +328,9 @@ BULUTO SECURITY PRO
 
                     st.session_state.active_request=None
 
-                    st.rerun()
+                    st.rerun()  
+                    st.markdown("""
+<a href="https://wa.me/436608680430" target="_blank" class="whatsapp-float">
+<span class="whatsapp-icon">📞</span> Acil Yardım
+</a>
+""", unsafe_allow_html=True)
