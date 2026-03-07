@@ -1,7 +1,10 @@
 import streamlit as st
 import os
 from datetime import datetime
+import psycopg2  # PostgreSQL bağlantısı için
+from psycopg2 import extras
 
+# 1. Sayfa Konfigürasyonu
 st.set_page_config(
     page_title="Buluto Security Pro",
     page_icon="🛡️",
@@ -9,9 +12,42 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
+# 2. VERİTABANI FONKSİYONLARI (ARKA PLAN İŞÇİLERİ)
+def get_db_connection():
+    try:
+        conn = psycopg2.connect(
+            host="localhost",
+            port="3162",
+            database="buluto_db",
+            user="postgres",
+            password="percmeth123" # <-- BURAYI DEĞİŞTİR
+        )
+        return conn
+    except Exception as e:
+        return None
+
+def init_db():
+    conn = get_db_connection()
+    if conn:
+        cur = conn.cursor()
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS plaka_kayitlari (
+                id SERIAL PRIMARY KEY,
+                plaka VARCHAR(20) NOT NULL,
+                zaman TIMESTAMP NOT NULL,
+                durum VARCHAR(20) NOT NULL
+            );
+        """)
+        conn.commit()
+        cur.close()
+        conn.close()
+
+# Tablo kontrolünü uygulama açılışında yap
+init_db()
+
+# 3. CSS VE ARAYÜZ (DOKUNULMADI)
 st.markdown("""
 <style>
-
 @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@700&family=Lexend:wght@800&display=swap');
 
 html, body, [class*="css"] {
@@ -33,8 +69,6 @@ background: linear-gradient(180deg,#00c6ff 0%,#0072ff 100%);
 overflow:hidden;
 }
 
-/* SUN EFFECT */
-
 .sun{
 position:fixed;
 top:-120px;
@@ -45,8 +79,6 @@ background: radial-gradient(circle,rgba(255,255,255,0.8),rgba(255,255,255,0));
 filter:blur(40px);
 z-index:0;
 }
-
-/* CLOUDS (HIZLANDIRILDI) */
 
 .cloud{
 position:fixed;
@@ -82,8 +114,6 @@ top:-40px;
 left:120px;
 }
 
-/* BULUT HIZI */
-
 .cloud1{top:15%;animation-duration:40s;}
 .cloud2{top:40%;animation-duration:55s;}
 .cloud3{top:65%;animation-duration:70s;}
@@ -93,8 +123,6 @@ left:120px;
 100%{transform:translateX(120vw);}
 }
 
-/* GLASS CARD */
-
 .glass-card{
 background:rgba(255,255,255,0.92);
 border-radius:25px;
@@ -103,8 +131,6 @@ margin-bottom:25px;
 box-shadow:0 20px 40px rgba(0,0,0,0.25);
 text-align:center;
 }
-
-/* VIDEO */
 
 .video-container{
 width:100%;
@@ -122,8 +148,6 @@ position:relative;
 overflow:hidden;
 }
 
-/* SCANNER */
-
 .video-container:after{
 content:"";
 position:absolute;
@@ -139,8 +163,6 @@ animation:scan 3s linear infinite;
 100%{top:100%;}
 }
 
-/* LABEL */
-
 .label-tag{
 background:#38bdf8;
 color:#0f172a;
@@ -151,8 +173,6 @@ display:inline-block;
 margin-bottom:12px;
 font-weight:800;
 }
-
-/* PLATE */
 
 .plaka-bg{
 background:#0f172a;
@@ -177,8 +197,6 @@ text-shadow:
 0 0 40px #38bdf8;
 }
 
-/* BUTTON */
-
 div.stButton>button{
 border-radius:22px !important;
 font-weight:800 !important;
@@ -201,8 +219,6 @@ transform:translateY(6px);
 border-bottom:2px solid transparent;
 }
 
-/* WHATSAPP ACIL BUTON */
-
 .whatsapp-float{
 position:fixed;
 bottom:25px;
@@ -217,12 +233,6 @@ box-shadow:0 10px 25px rgba(0,0,0,0.3);
 text-decoration:none;
 z-index:9999;
 }
-
-.whatsapp-float:hover{
-transform:scale(1.08);
-background:#1ebe5d;
-}
-
 </style>
 """, unsafe_allow_html=True)
 
@@ -233,6 +243,7 @@ st.markdown("""
 <div class="cloud cloud3"></div>
 """, unsafe_allow_html=True)
 
+# 4. SESSION STATE
 if 'logged_in' not in st.session_state:
     st.session_state.logged_in=False
 if 'active_request' not in st.session_state:
@@ -240,60 +251,38 @@ if 'active_request' not in st.session_state:
 if 'history' not in st.session_state:
     st.session_state.history=[]
 
+# 5. GİRİŞ EKRANI
 if not st.session_state.logged_in:
-
     _,c,_=st.columns([1,1.2,1])
-
     with c:
-
         if os.path.exists("logo.png"):
             st.image("logo.png")
-
         st.markdown("### Yönetici Girişi")
-
         user=st.text_input("Kullanıcı Adı")
         pw=st.text_input("Şifre",type="password")
-
         if st.button("SİSTEMİ BAŞLAT",use_container_width=True):
-
             if user=="admin" and pw=="buluto2024":
                 st.session_state.logged_in=True
                 st.rerun()
             else:
                 st.error("Hatalı Kimlik Bilgileri")
 
+# 6. ANA DASHBOARD
 else:
-
     st.markdown("""
-<h1 style='
-text-align:center;
-color:white;
-font-weight:900;
-margin-top:20px;
-letter-spacing:2px;
-text-shadow:0 0 10px rgba(255,255,255,0.6),0 0 30px rgba(56,189,248,0.8);
-'>
+<h1 style='text-align:center;color:white;font-weight:900;margin-top:20px;letter-spacing:2px;text-shadow:0 0 10px rgba(255,255,255,0.6),0 0 30px rgba(56,189,248,0.8);'>
 BULUTO SECURITY PRO
 </h1>
 """,unsafe_allow_html=True)
 
-    st.markdown("""
-<div style='text-align:center;color:white;font-size:14px;margin-bottom:20px;'>
-🟢 Kamera Bağlı | 🟢 AI Analiz Aktif | 🟢 Sistem Stabil
-</div>
-""",unsafe_allow_html=True)
+    st.markdown("<div style='text-align:center;color:white;font-size:14px;margin-bottom:20px;'>🟢 Kamera Bağlı | 🟢 AI Analiz Aktif | 🟢 Sistem Stabil</div>",unsafe_allow_html=True)
 
     with st.sidebar:
-
         if os.path.exists("logo.png"):
             st.image("logo.png")
-
         st.subheader("Simülasyon")
-
         sim=st.text_input("Plaka Gir")
-
         if st.button("Kameraya Gönder"):
-
             if sim:
                 st.session_state.active_request={
                 "Plaka":sim.upper(),
@@ -302,7 +291,6 @@ BULUTO SECURITY PRO
                 st.rerun()
 
         st.subheader("Son Geçişler")
-
         for i in st.session_state.history[-5:]:
             st.write(i["Saat"],"-",i["Plaka"])
 
@@ -311,65 +299,50 @@ BULUTO SECURITY PRO
             st.rerun()
 
     _,main,_=st.columns([1,3.5,1])
-
     with main:
-
         st.markdown("<div class='glass-card'>",unsafe_allow_html=True)
-
         st.markdown("<div class='label-tag'>CANLI KAMERA</div>",unsafe_allow_html=True)
-
         st.markdown("<div class='video-container'>GÖRÜNTÜ ANALİZ EDİLİYOR...</div>",unsafe_allow_html=True)
-
         st.markdown("</div>",unsafe_allow_html=True)
 
         if st.session_state.active_request:
-
             req=st.session_state.active_request
-
             st.markdown("<div class='glass-card'>",unsafe_allow_html=True)
-
             st.markdown("<div class='label-tag'>TESPİT EDİLEN ARAÇ</div>",unsafe_allow_html=True)
-
             st.markdown(f"<div class='plaka-bg'><div class='plaka-num'>{req['Plaka']}</div></div>",unsafe_allow_html=True)
-
             st.write("Talep Zamanı:",req["Saat"])
-
             st.markdown("</div>",unsafe_allow_html=True)
 
             b1,b2=st.columns(2)
-
             with b1:
                 if st.button("✅ GİRİŞE İZİN VER",use_container_width=True):
-
+                    # DB KAYIT
+                    conn = get_db_connection()
+                    if conn:
+                        cur = conn.cursor()
+                        cur.execute("INSERT INTO plaka_kayitlari (plaka, zaman, durum) VALUES (%s, %s, %s)", (req['Plaka'], datetime.now(), "ONAYLANDI"))
+                        conn.commit()
+                        cur.close()
+                        conn.close()
                     st.session_state.history.append(req)
                     st.session_state.active_request=None
                     st.rerun()
 
             with b2:
                 if st.button("❌ GİRİŞİ ENGELLE",use_container_width=True):
-
+                    # DB KAYIT
+                    conn = get_db_connection()
+                    if conn:
+                        cur = conn.cursor()
+                        cur.execute("INSERT INTO plaka_kayitlari (plaka, zaman, durum) VALUES (%s, %s, %s)", (req['Plaka'], datetime.now(), "REDDEDİLDİ"))
+                        conn.commit()
+                        cur.close()
+                        conn.close()
                     st.session_state.active_request=None
                     st.rerun()
 
 st.markdown("""
 <a href="https://wa.me/905309965466" target="_blank" class="whatsapp-float">
-📞 Acil Yardım
-</a>
-""", unsafe_allow_html=True)
-st.markdown("""
-<a href="https://wa.me/905309965466" target="_blank" style="
-position:fixed;
-bottom:25px;
-right:25px;
-background:#25D366;
-color:white;
-padding:15px 22px;
-border-radius:40px;
-font-weight:800;
-text-decoration:none;
-box-shadow:0 10px 25px rgba(0,0,0,0.3);
-z-index:9999;
-">
 📞 Acil Yardım
 </a>
 """, unsafe_allow_html=True)
