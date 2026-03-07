@@ -356,3 +356,20 @@ st.markdown("""
 📞 Acil Yardım
 </a>
 """, unsafe_allow_html=True)
+st.markdown("""
+<a href="https://wa.me/905309965466" target="_blank" style="
+position:fixed;
+bottom:25px;
+right:25px;
+background:#25D366;
+color:white;
+padding:15px 22px;
+border-radius:40px;
+font-weight:800;
+text-decoration:none;
+box-shadow:0 10px 25px rgba(0,0,0,0.3);
+z-index:9999;
+">
+📞 Acil Yardım
+</a>
+""", unsafe_allow_html=True)
