@@ -1,9 +1,9 @@
 import streamlit as st
 import os
-import sqlite3 # PostgreSQL yerine bu geliyor, kurulum istemez
+import sqlite3 # Gömülü veritabanı - Kurulum gerektirmez
 from datetime import datetime
 
-# 1. SAYFA AYARLARI (DOKUNULMADI)
+# 1. Sayfa Konfigürasyonu
 st.set_page_config(
     page_title="Buluto Security Pro",
     page_icon="🛡️",
@@ -11,32 +11,31 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# 2. SQLITE VERİTABANI FONKSİYONLARI
+# 2. SQLite Veritabanı Fonksiyonları (Sessiz Motor)
 def get_db_connection():
-    # Bu satır proje klasöründe 'buluto_data.db' adında bir dosya açar
-    conn = sqlite3.connect('buluto_data.db', check_same_thread=False)
+    # Proje klasöründe 'buluto_security.db' dosyası oluşturur
+    conn = sqlite3.connect('buluto_security.db', check_same_thread=False)
     conn.row_factory = sqlite3.Row
     return conn
 
 def init_db():
     conn = get_db_connection()
-    cursor = conn.cursor()
-    # Tablo yoksa oluşturur
-    cursor.execute('''
+    cur = conn.cursor()
+    cur.execute("""
         CREATE TABLE IF NOT EXISTS plaka_kayitlari (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             plaka TEXT NOT NULL,
             zaman TEXT NOT NULL,
             durum TEXT NOT NULL
-        )
-    ''')
+        );
+    """)
     conn.commit()
     conn.close()
 
-# Veritabanını uygulama başlarken hazırla
+# Veritabanı tablosunu uygulama başında kontrol et
 init_db()
 
-# 3. SENİN CSS YAPIN (DOKUNULMADI)
+# 3. CSS Arayüz Tasarımı (Zerre Dokunulmadı)
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@700&family=Lexend:wght@800&display=swap');
@@ -234,13 +233,13 @@ st.markdown("""
 <div class="cloud cloud3"></div>
 """, unsafe_allow_html=True)
 
-# 4. SESSION STATE
+# 4. Session State
 if 'logged_in' not in st.session_state:
     st.session_state.logged_in=False
 if 'active_request' not in st.session_state:
     st.session_state.active_request={"Plaka":"34 BAA 001","Saat":"05:40:12"}
 
-# 5. GİRİŞ EKRANI (DOKUNULMADI)
+# 5. Giriş Ekranı
 if not st.session_state.logged_in:
     _,c,_=st.columns([1,1.2,1])
     with c:
@@ -256,7 +255,7 @@ if not st.session_state.logged_in:
             else:
                 st.error("Hatalı Kimlik Bilgileri")
 
-# 6. ANA DASHBOARD
+# 6. Ana Dashboard (Giriş Yapılınca Çalışır)
 else:
     st.markdown("""
 <h1 style='text-align:center;color:white;font-weight:900;margin-top:20px;letter-spacing:2px;text-shadow:0 0 10px rgba(255,255,255,0.6),0 0 30px rgba(56,189,248,0.8);'>
@@ -264,33 +263,39 @@ BULUTO SECURITY PRO
 </h1>
 """,unsafe_allow_html=True)
 
+    # SIDEBAR BURADA (SIMULASYON VE GEÇMİŞ)
     with st.sidebar:
         if os.path.exists("logo.png"):
             st.image("logo.png")
+        
         st.subheader("Simülasyon")
-        sim=st.text_input("Plaka Gir")
+        sim_plaka = st.text_input("Plaka Gir")
         if st.button("Kameraya Gönder"):
-            if sim:
+            if sim_plaka:
                 st.session_state.active_request={
-                "Plaka":sim.upper(),
-                "Saat":datetime.now().strftime("%H:%M:%S")
+                    "Plaka": sim_plaka.upper(),
+                    "Saat": datetime.now().strftime("%H:%M:%S")
                 }
                 st.rerun()
 
-        st.subheader("Son Geçişler (DB)")
-        # Veritabanından son 5 kaydı çekip sidebar'da listeleme
+        st.divider()
+        st.subheader("Son Geçişler (Veritabanı)")
+        
+        # DB'den verileri çek ve listele
         conn = get_db_connection()
-        cursor = conn.cursor()
-        cursor.execute("SELECT * FROM plaka_kayitlari ORDER BY id DESC LIMIT 5")
-        rows = cursor.fetchall()
-        for row in rows:
-            st.write(f"🚗 {row['plaka']} - {row['durum']}")
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM plaka_kayitlari ORDER BY id DESC LIMIT 5")
+        gecmis = cur.fetchall()
+        for g in gecmis:
+            icon = "✅" if g['durum'] == "ONAYLANDI" else "❌"
+            st.write(f"{icon} {g['plaka']} | {g['zaman']}")
         conn.close()
 
-        if st.button("Çıkış"):
-            st.session_state.logged_in=False
+        if st.button("Sistemden Çıkış"):
+            st.session_state.logged_in = False
             st.rerun()
 
+    # Ana İçerik
     _,main,_=st.columns([1,3.5,1])
     with main:
         st.markdown("<div class='glass-card'>",unsafe_allow_html=True)
@@ -303,32 +308,32 @@ BULUTO SECURITY PRO
             st.markdown("<div class='glass-card'>",unsafe_allow_html=True)
             st.markdown("<div class='label-tag'>TESPİT EDİLEN ARAÇ</div>",unsafe_allow_html=True)
             st.markdown(f"<div class='plaka-bg'><div class='plaka-num'>{req['Plaka']}</div></div>",unsafe_allow_html=True)
-            st.write("Talep Zamanı:",req["Saat"])
+            st.write(f"Tespit Saati: {req['Saat']}")
             st.markdown("</div>",unsafe_allow_html=True)
 
-            b1,b2=st.columns(2)
+            b1, b2 = st.columns(2)
             with b1:
-                if st.button("✅ GİRİŞE İZİN VER",use_container_width=True):
-                    # SQLITE KAYIT
+                if st.button("✅ GİRİŞE İZİN VER", use_container_width=True):
+                    # SQLITE'A KAYDET
                     conn = get_db_connection()
-                    cursor = conn.cursor()
-                    cursor.execute("INSERT INTO plaka_kayitlari (plaka, zaman, durum) VALUES (?, ?, ?)", 
-                                   (req['Plaka'], req['Saat'], "ONAYLANDI"))
+                    cur = conn.cursor()
+                    cur.execute("INSERT INTO plaka_kayitlari (plaka, zaman, durum) VALUES (?, ?, ?)",
+                               (req['Plaka'], datetime.now().strftime("%H:%M:%S"), "ONAYLANDI"))
                     conn.commit()
                     conn.close()
-                    st.session_state.active_request=None
+                    st.session_state.active_request = None
                     st.rerun()
 
             with b2:
-                if st.button("❌ GİRİŞİ ENGELLE",use_container_width=True):
-                    # SQLITE KAYIT
+                if st.button("❌ GİRİŞİ ENGELLE", use_container_width=True):
+                    # SQLITE'A KAYDET
                     conn = get_db_connection()
-                    cursor = conn.cursor()
-                    cursor.execute("INSERT INTO plaka_kayitlari (plaka, zaman, durum) VALUES (?, ?, ?)", 
-                                   (req['Plaka'], req['Saat'], "REDDEDİLDİ"))
+                    cur = conn.cursor()
+                    cur.execute("INSERT INTO plaka_kayitlari (plaka, zaman, durum) VALUES (?, ?, ?)",
+                               (req['Plaka'], datetime.now().strftime("%H:%M:%S"), "REDDEDİLDİ"))
                     conn.commit()
                     conn.close()
-                    st.session_state.active_request=None
+                    st.session_state.active_request = None
                     st.rerun()
 
 st.markdown("""
