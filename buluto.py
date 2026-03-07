@@ -1,9 +1,9 @@
 import streamlit as st
 import os
-import sqlite3 # Gömülü veritabanı - Kurulum gerektirmez
+import sqlite3
 from datetime import datetime
 
-# 1. Sayfa Konfigürasyonu
+# 1. SAYFA AYARLARI (Sidebar'ı açık başlatmaya zorlar)
 st.set_page_config(
     page_title="Buluto Security Pro",
     page_icon="🛡️",
@@ -11,9 +11,8 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# 2. SQLite Veritabanı Fonksiyonları (Sessiz Motor)
+# 2. SQLITE BAĞLANTISI (PostgreSQL yerine tıkır tıkır çalışan versiyon)
 def get_db_connection():
-    # Proje klasöründe 'buluto_security.db' dosyası oluşturur
     conn = sqlite3.connect('buluto_security.db', check_same_thread=False)
     conn.row_factory = sqlite3.Row
     return conn
@@ -32,10 +31,9 @@ def init_db():
     conn.commit()
     conn.close()
 
-# Veritabanı tablosunu uygulama başında kontrol et
 init_db()
 
-# 3. CSS Arayüz Tasarımı (Zerre Dokunulmadı)
+# 3. SENİN MEŞHUR CSS BLOĞUN (Buraya dokunmak bile yasak!)
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@700&family=Lexend:wght@800&display=swap');
@@ -226,6 +224,7 @@ z-index:9999;
 </style>
 """, unsafe_allow_html=True)
 
+# GÖRSEL ELEMENTLER
 st.markdown("""
 <div class="sun"></div>
 <div class="cloud cloud1"></div>
@@ -233,88 +232,86 @@ st.markdown("""
 <div class="cloud cloud3"></div>
 """, unsafe_allow_html=True)
 
-# 4. Session State
+# 4. SESSION STATE
 if 'logged_in' not in st.session_state:
-    st.session_state.logged_in=False
+    st.session_state.logged_in = False
 if 'active_request' not in st.session_state:
-    st.session_state.active_request={"Plaka":"34 BAA 001","Saat":"05:40:12"}
+    st.session_state.active_request = {"Plaka":"34 BAA 001","Saat":"05:40:12"}
 
-# 5. Giriş Ekranı
+# 5. GİRİŞ EKRANI
 if not st.session_state.logged_in:
-    _,c,_=st.columns([1,1.2,1])
+    _,c,_ = st.columns([1,1.2,1])
     with c:
         if os.path.exists("logo.png"):
             st.image("logo.png")
         st.markdown("### Yönetici Girişi")
-        user=st.text_input("Kullanıcı Adı")
-        pw=st.text_input("Şifre",type="password")
-        if st.button("SİSTEMİ BAŞLAT",use_container_width=True):
-            if user=="admin" and pw=="buluto2024":
-                st.session_state.logged_in=True
+        user = st.text_input("Kullanıcı Adı")
+        pw = st.text_input("Şifre", type="password")
+        if st.button("SİSTEMİ BAŞLAT", use_container_width=True):
+            if user == "admin" and pw == "buluto2024":
+                st.session_state.logged_in = True
                 st.rerun()
             else:
                 st.error("Hatalı Kimlik Bilgileri")
 
-# 6. Ana Dashboard (Giriş Yapılınca Çalışır)
+# 6. ANA SİSTEM (Giriş Yapılınca)
 else:
-    st.markdown("""
-<h1 style='text-align:center;color:white;font-weight:900;margin-top:20px;letter-spacing:2px;text-shadow:0 0 10px rgba(255,255,255,0.6),0 0 30px rgba(56,189,248,0.8);'>
-BULUTO SECURITY PRO
-</h1>
-""",unsafe_allow_html=True)
-
-    # SIDEBAR BURADA (SIMULASYON VE GEÇMİŞ)
+    # --- SIDEBAR (SİHİRLİ DOKUNUŞ BURADA) ---
     with st.sidebar:
         if os.path.exists("logo.png"):
             st.image("logo.png")
-        
         st.subheader("Simülasyon")
-        sim_plaka = st.text_input("Plaka Gir")
+        sim_plaka = st.text_input("Plaka Manuel Giriş")
         if st.button("Kameraya Gönder"):
             if sim_plaka:
-                st.session_state.active_request={
+                st.session_state.active_request = {
                     "Plaka": sim_plaka.upper(),
                     "Saat": datetime.now().strftime("%H:%M:%S")
                 }
                 st.rerun()
 
         st.divider()
-        st.subheader("Son Geçişler (Veritabanı)")
+        st.subheader("Son Geçişler (DB)")
         
-        # DB'den verileri çek ve listele
+        # VERİTABANINDAN ÇEKME
         conn = get_db_connection()
         cur = conn.cursor()
         cur.execute("SELECT * FROM plaka_kayitlari ORDER BY id DESC LIMIT 5")
-        gecmis = cur.fetchall()
-        for g in gecmis:
-            icon = "✅" if g['durum'] == "ONAYLANDI" else "❌"
-            st.write(f"{icon} {g['plaka']} | {g['zaman']}")
+        rows = cur.fetchall()
+        for r in rows:
+            st.write(f"🚗 {r['plaka']} - {r['durum']}")
         conn.close()
 
-        if st.button("Sistemden Çıkış"):
+        if st.button("Güvenli Çıkış"):
             st.session_state.logged_in = False
             st.rerun()
 
-    # Ana İçerik
-    _,main,_=st.columns([1,3.5,1])
+    # ANA EKRAN TASARIMI
+    st.markdown("""
+    <h1 style='text-align:center;color:white;font-weight:900;margin-top:20px;letter-spacing:2px;text-shadow:0 0 10px rgba(255,255,255,0.6),0 0 30px rgba(56,189,248,0.8);'>
+    BULUTO SECURITY PRO
+    </h1>
+    """, unsafe_allow_html=True)
+
+    _, main, _ = st.columns([1, 3.5, 1])
     with main:
-        st.markdown("<div class='glass-card'>",unsafe_allow_html=True)
-        st.markdown("<div class='label-tag'>CANLI KAMERA</div>",unsafe_allow_html=True)
-        st.markdown("<div class='video-container'>GÖRÜNTÜ ANALİZ EDİLİYOR...</div>",unsafe_allow_html=True)
-        st.markdown("</div>",unsafe_allow_html=True)
+        st.markdown("<div class='glass-card'>", unsafe_allow_html=True)
+        st.markdown("<div class='label-tag'>CANLI KAMERA</div>", unsafe_allow_html=True)
+        st.markdown("<div class='video-container'>GÖRÜNTÜ ANALİZ EDİLİYOR...</div>", unsafe_allow_html=True)
+        st.markdown("</div>", unsafe_allow_html=True)
 
         if st.session_state.active_request:
             req = st.session_state.active_request
-            st.markdown("<div class='glass-card'>",unsafe_allow_html=True)
-            st.markdown("<div class='label-tag'>TESPİT EDİLEN ARAÇ</div>",unsafe_allow_html=True)
-            st.markdown(f"<div class='plaka-bg'><div class='plaka-num'>{req['Plaka']}</div></div>",unsafe_allow_html=True)
-            st.write(f"Tespit Saati: {req['Saat']}")
-            st.markdown("</div>",unsafe_allow_html=True)
+            st.markdown("<div class='glass-card'>", unsafe_allow_html=True)
+            st.markdown("<div class='label-tag'>TESPİT EDİLEN ARAÇ</div>", unsafe_allow_html=True)
+            st.markdown(f"<div class='plaka-bg'><div class='plaka-num'>{req['Plaka']}</div></div>", unsafe_allow_html=True)
+            st.write("Talep Zamanı:", req["Saat"])
+            st.markdown("</div>", unsafe_allow_html=True)
 
             b1, b2 = st.columns(2)
             with b1:
                 if st.button("✅ GİRİŞE İZİN VER", use_container_width=True):
-                    # SQLITE'A KAYDET
+                    # SQLITE KAYIT
                     conn = get_db_connection()
                     cur = conn.cursor()
                     cur.execute("INSERT INTO plaka_kayitlari (plaka, zaman, durum) VALUES (?, ?, ?)",
@@ -326,7 +323,7 @@ BULUTO SECURITY PRO
 
             with b2:
                 if st.button("❌ GİRİŞİ ENGELLE", use_container_width=True):
-                    # SQLITE'A KAYDET
+                    # SQLITE KAYIT
                     conn = get_db_connection()
                     cur = conn.cursor()
                     cur.execute("INSERT INTO plaka_kayitlari (plaka, zaman, durum) VALUES (?, ?, ?)",
@@ -340,4 +337,4 @@ st.markdown("""
 <a href="https://wa.me/905309965466" target="_blank" class="whatsapp-float">
 📞 Acil Yardım
 </a>
-""", unsafe_allow_html=True) 
+""", unsafe_allow_html=True)
