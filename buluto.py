@@ -1,10 +1,9 @@
 import streamlit as st
 import os
+import sqlite3 # PostgreSQL yerine bu geliyor, kurulum istemez
 from datetime import datetime
-import psycopg2  # PostgreSQL bağlantısı için
-from psycopg2 import extras
 
-# 1. Sayfa Konfigürasyonu
+# 1. SAYFA AYARLARI (DOKUNULMADI)
 st.set_page_config(
     page_title="Buluto Security Pro",
     page_icon="🛡️",
@@ -12,40 +11,32 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# 2. VERİTABANI FONKSİYONLARI (ARKA PLAN İŞÇİLERİ)
+# 2. SQLITE VERİTABANI FONKSİYONLARI
 def get_db_connection():
-    try:
-        conn = psycopg2.connect(
-            host="localhost",
-            port="3162",
-            database="buluto_db",
-            user="postgres",
-            password="percmeth123" # <-- BURAYI DEĞİŞTİR
-        )
-        return conn
-    except Exception as e:
-        return None
+    # Bu satır proje klasöründe 'buluto_data.db' adında bir dosya açar
+    conn = sqlite3.connect('buluto_data.db', check_same_thread=False)
+    conn.row_factory = sqlite3.Row
+    return conn
 
 def init_db():
     conn = get_db_connection()
-    if conn:
-        cur = conn.cursor()
-        cur.execute("""
-            CREATE TABLE IF NOT EXISTS plaka_kayitlari (
-                id SERIAL PRIMARY KEY,
-                plaka VARCHAR(20) NOT NULL,
-                zaman TIMESTAMP NOT NULL,
-                durum VARCHAR(20) NOT NULL
-            );
-        """)
-        conn.commit()
-        cur.close()
-        conn.close()
+    cursor = conn.cursor()
+    # Tablo yoksa oluşturur
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS plaka_kayitlari (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            plaka TEXT NOT NULL,
+            zaman TEXT NOT NULL,
+            durum TEXT NOT NULL
+        )
+    ''')
+    conn.commit()
+    conn.close()
 
-# Tablo kontrolünü uygulama açılışında yap
+# Veritabanını uygulama başlarken hazırla
 init_db()
 
-# 3. CSS VE ARAYÜZ (DOKUNULMADI)
+# 3. SENİN CSS YAPIN (DOKUNULMADI)
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@700&family=Lexend:wght@800&display=swap');
@@ -248,10 +239,8 @@ if 'logged_in' not in st.session_state:
     st.session_state.logged_in=False
 if 'active_request' not in st.session_state:
     st.session_state.active_request={"Plaka":"34 BAA 001","Saat":"05:40:12"}
-if 'history' not in st.session_state:
-    st.session_state.history=[]
 
-# 5. GİRİŞ EKRANI
+# 5. GİRİŞ EKRANI (DOKUNULMADI)
 if not st.session_state.logged_in:
     _,c,_=st.columns([1,1.2,1])
     with c:
@@ -275,8 +264,6 @@ BULUTO SECURITY PRO
 </h1>
 """,unsafe_allow_html=True)
 
-    st.markdown("<div style='text-align:center;color:white;font-size:14px;margin-bottom:20px;'>🟢 Kamera Bağlı | 🟢 AI Analiz Aktif | 🟢 Sistem Stabil</div>",unsafe_allow_html=True)
-
     with st.sidebar:
         if os.path.exists("logo.png"):
             st.image("logo.png")
@@ -290,9 +277,15 @@ BULUTO SECURITY PRO
                 }
                 st.rerun()
 
-        st.subheader("Son Geçişler")
-        for i in st.session_state.history[-5:]:
-            st.write(i["Saat"],"-",i["Plaka"])
+        st.subheader("Son Geçişler (DB)")
+        # Veritabanından son 5 kaydı çekip sidebar'da listeleme
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM plaka_kayitlari ORDER BY id DESC LIMIT 5")
+        rows = cursor.fetchall()
+        for row in rows:
+            st.write(f"🚗 {row['plaka']} - {row['durum']}")
+        conn.close()
 
         if st.button("Çıkış"):
             st.session_state.logged_in=False
@@ -306,7 +299,7 @@ BULUTO SECURITY PRO
         st.markdown("</div>",unsafe_allow_html=True)
 
         if st.session_state.active_request:
-            req=st.session_state.active_request
+            req = st.session_state.active_request
             st.markdown("<div class='glass-card'>",unsafe_allow_html=True)
             st.markdown("<div class='label-tag'>TESPİT EDİLEN ARAÇ</div>",unsafe_allow_html=True)
             st.markdown(f"<div class='plaka-bg'><div class='plaka-num'>{req['Plaka']}</div></div>",unsafe_allow_html=True)
@@ -316,28 +309,25 @@ BULUTO SECURITY PRO
             b1,b2=st.columns(2)
             with b1:
                 if st.button("✅ GİRİŞE İZİN VER",use_container_width=True):
-                    # DB KAYIT
+                    # SQLITE KAYIT
                     conn = get_db_connection()
-                    if conn:
-                        cur = conn.cursor()
-                        cur.execute("INSERT INTO plaka_kayitlari (plaka, zaman, durum) VALUES (%s, %s, %s)", (req['Plaka'], datetime.now(), "ONAYLANDI"))
-                        conn.commit()
-                        cur.close()
-                        conn.close()
-                    st.session_state.history.append(req)
+                    cursor = conn.cursor()
+                    cursor.execute("INSERT INTO plaka_kayitlari (plaka, zaman, durum) VALUES (?, ?, ?)", 
+                                   (req['Plaka'], req['Saat'], "ONAYLANDI"))
+                    conn.commit()
+                    conn.close()
                     st.session_state.active_request=None
                     st.rerun()
 
             with b2:
                 if st.button("❌ GİRİŞİ ENGELLE",use_container_width=True):
-                    # DB KAYIT
+                    # SQLITE KAYIT
                     conn = get_db_connection()
-                    if conn:
-                        cur = conn.cursor()
-                        cur.execute("INSERT INTO plaka_kayitlari (plaka, zaman, durum) VALUES (%s, %s, %s)", (req['Plaka'], datetime.now(), "REDDEDİLDİ"))
-                        conn.commit()
-                        cur.close()
-                        conn.close()
+                    cursor = conn.cursor()
+                    cursor.execute("INSERT INTO plaka_kayitlari (plaka, zaman, durum) VALUES (?, ?, ?)", 
+                                   (req['Plaka'], req['Saat'], "REDDEDİLDİ"))
+                    conn.commit()
+                    conn.close()
                     st.session_state.active_request=None
                     st.rerun()
 
